@@ -1,0 +1,63 @@
+services:
+  auth_service:
+    build: ./services/auth_service
+    image: auth_service:latest
+    container_name: auth_service
+    ports:
+      - "8001:8001"
+
+  ocr_service:
+    build: ./services/ocr_service
+    image: ocr_service:latest
+    container_name: ocr_service
+    ports:
+      - "8002:8002"
+
+  summarizer_service:
+    build: ./services/summarizer_service
+    image: summarizer_service:latest
+    container_name: summarizer_service
+    ports:
+      - "8003:8003"
+
+  preprocess_service:
+    build: ./services/preprocess_service
+    image: preprocess_service:latest
+    container_name: preprocess_service
+    ports:
+      - "8004:8004"
+
+  classifier_service:
+    build: ./services/classifier_service
+    image: classifier_service:latest
+    container_name: classifier_service
+    ports:
+      - "8005:8005"
+
+  translate_service:
+    build: ./services/translate_service
+    image: translate_service:latest
+    container_name: translate_service
+    ports:
+      - "8006:8006"
+
+  gateway:
+    build: ./gateway
+    image: gateway:latest
+    container_name: gateway
+    ports:
+      - "8010:8010"
+    environment:
+      - AUTH_URL=http://auth_service:8001
+      - OCR_URL=http://ocr_service:8002
+      - SUMMARIZER_URL=http://summarizer_service:8003
+      - PREPROCESS_URL=http://preprocess_service:8004
+      - CLASSIFIER_URL=http://classifier_service:8005
+      - TRANSLATE_URL=http://translate_service:8006
+
+  frontend:
+    build: ./ui
+    image: frontend:latest
+    container_name: frontend
+    ports:
+      - "3000:80"
