@@ -33,26 +33,26 @@ export default function Classifier() {
   }
 
   return (
-    <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100 p-6 sm:p-8">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-medium mb-2">
-            <span>🧩</span>
-            <span>Document Classifier</span>
-          </div>
-          <h2 className="text-2xl font-semibold text-slate-900">
-            Phân loại loại tài liệu
-          </h2>
-          <p className="text-sm text-slate-500 mt-1 max-w-xl">
-            Dán văn bản (hoặc dùng kết quả OCR) để hệ thống dự đoán tài liệu là
-            gì: ví dụ{" "}
-            <span className="font-medium text-slate-700">
-              đề thi, hóa đơn, bài báo, tài liệu học tập
-            </span>
-            , v.v.
-          </p>
-        </div>
+    <div className="bg-white rounded-2xl shadow p-6">
+      <h2 className="text-xl font-semibold text-indigo-600 mb-4">
+        🧩 Classifier
+      </h2>
+
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={6}
+        className="w-full p-3 border rounded"
+      />
+
+      <div className="mt-3">
+        <button
+          onClick={classify}
+          className="px-3 py-2 bg-yellow-600 text-white rounded"
+          disabled={loading}
+        >
+          {loading ? "Đang phân loại..." : "Phân loại"}
+        </button>
       </div>
 
       {/* Content */}
