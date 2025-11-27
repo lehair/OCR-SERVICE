@@ -1,29 +1,34 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
 from src.service.summarizer_service import SummarizerService
+from src.model.summarizer_result import SummaryResult
 
 router = APIRouter()
 summarizer = SummarizerService()
+
 
 class TextIn(BaseModel):
     text: str
     max_sentences: int = 3
     max_chars: int = 300
 
-@router.post("/summarize")
+
+@router.post("/summarize", response_model=SummaryResult)
 def summarize_text(payload: TextIn):
     try:
-        text = (payload.text or "").trim()
+        # ✅ Python dùng strip(), không phải trim()
+        text = (payload.text or "").strip()
         if not text:
-            return {"summary": ""}
+            return SummaryResult(summary="")
 
         summary = summarizer.summarize(
             text=text,
             max_sentences=payload.max_sentences,
-            max_chars=payload.max_chars
+            max_chars=payload.max_chars,
         )
 
-        return {"summary": summary}
+        return SummaryResult(summary=summary)
 
     except Exception as e:
         print("Summarize error:", repr(e))
