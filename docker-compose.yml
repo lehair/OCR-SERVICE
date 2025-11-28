@@ -5,6 +5,9 @@ services:
     container_name: auth_service
     ports:
       - "8001:8001"
+    #Thêm volume để giữ lại file users.db trên máy thật
+    volumes:
+      - ./services/auth_service/users.db:/app/users.db
 
   ocr_service:
     build: ./services/ocr_service
