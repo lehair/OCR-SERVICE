@@ -1,14 +1,34 @@
 services:
+  # ====================== MYSQL DB ======================
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: ocr_auth
+      MYSQL_USER: ocr_user
+      MYSQL_PASSWORD: 123456
+    ports:
+      # Port ngoài:3307 để không trùng MySQL cài trên Windows
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # ====================== AUTH SERVICE ======================
   auth_service:
     build: ./services/auth_service
     image: auth_service:latest
     container_name: auth_service
+    depends_on:
+      - mysql
+    environment:
+      # Chuỗi kết nối MySQL cho SQLAlchemy
+      - DATABASE_URL=mysql+mysqlconnector://ocr_user:123456@mysql:3306/ocr_auth
     ports:
       - "8001:8001"
-    #Thêm volume để giữ lại file users.db trên máy thật
-    volumes:
-      - ./services/auth_service/users.db:/app/users.db
 
+  # ====================== OCR SERVICE ======================
   ocr_service:
     build: ./services/ocr_service
     image: ocr_service:latest
@@ -64,3 +84,6 @@ services:
     container_name: frontend
     ports:
       - "3000:80"
+
+volumes:
+  mysql_data:

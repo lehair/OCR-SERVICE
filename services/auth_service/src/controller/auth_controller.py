@@ -8,7 +8,7 @@ from passlib.context import CryptContext
 
 router = APIRouter()
 
-# Dùng pbkdf2_sha256 thay cho bcrypt để tránh lỗi tương thích
+
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 

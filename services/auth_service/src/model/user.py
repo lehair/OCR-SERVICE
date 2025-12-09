@@ -1,3 +1,4 @@
+# services/auth_service/src/model/user.py
 from sqlalchemy import Column, Integer, String
 from .database import Base
 
@@ -5,6 +6,6 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True, nullable=False)
-    full_name = Column(String, nullable=True)
-    hashed_password = Column(String, nullable=False)
+    username = Column(String(50), unique=True, index=True, nullable=False)
+    full_name = Column(String(100))
+    hashed_password = Column(String(255), nullable=False)

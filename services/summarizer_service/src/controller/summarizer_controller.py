@@ -17,7 +17,6 @@ class TextIn(BaseModel):
 @router.post("/summarize", response_model=SummaryResult)
 def summarize_text(payload: TextIn):
     try:
-        # ✅ Python dùng strip(), không phải trim()
         text = (payload.text or "").strip()
         if not text:
             return SummaryResult(summary="")

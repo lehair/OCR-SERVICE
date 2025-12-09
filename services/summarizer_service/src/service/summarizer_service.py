@@ -2,7 +2,6 @@ import re
 
 class SummarizerService:
     def summarize(self, text: str, max_sentences=3, max_chars=300):
-        # đơn giản: tách thành câu
         sentences = re.split(r'[.!?]', text)
         sentences = [s.strip() for s in sentences if s.strip()]
 
