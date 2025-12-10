@@ -10,8 +10,8 @@ services:
       MYSQL_USER: ocr_user
       MYSQL_PASSWORD: 123456
     ports:
-      # Port ngoài:3307 để không trùng MySQL cài trên Windows
-      - "3307:3306"
+      # Port ngoài:3308 để không trùng MySQL cài trên Windows
+      - "3308:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 

@@ -10,6 +10,8 @@ import Translate from "./pages/Translate";
 import Classifier from "./pages/Classifier";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import LoginStats from "./pages/LoginStats"; // 👈 Thống kê đăng nhập
+import DocStats from "./pages/DocStats"; // 👈 (MỚI) Thống kê loại tài liệu
 
 function AppLayout() {
   const location = useLocation();
@@ -42,6 +44,13 @@ function AppLayout() {
                 <Route path="/summarizer" element={<Summarizer />} />
                 <Route path="/translate" element={<Translate />} />
                 <Route path="/classifier" element={<Classifier />} />
+
+                {/* Dashboard thống kê đăng nhập */}
+                <Route path="/login-stats" element={<LoginStats />} />
+
+                {/* Dashboard thống kê tài liệu (Căn cước / Thẻ SV / Đề cương / ngôn ngữ) */}
+                <Route path="/doc-stats" element={<DocStats />} />
+
                 {/* Nếu lạc route thì về trang chủ */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

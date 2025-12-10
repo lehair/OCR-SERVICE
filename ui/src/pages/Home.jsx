@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -37,6 +38,22 @@ export default function Home() {
       accent: "from-emerald-500/10 to-teal-500/10 border-emerald-100",
       pill: "Machine Translation",
     },
+    {
+      key: "login-stats",
+      title: "📊 Login Stats",
+      desc: "Xem thống kê tài khoản và lượt đăng nhập hệ thống.",
+      action: () => navigate("/login-stats"),
+      accent: "from-indigo-500/10 to-purple-500/10 border-indigo-100",
+      pill: "Auth Dashboard",
+    },
+    {
+      key: "doc-stats",
+      title: "📑 Doc Stats",
+      desc: "Thống kê loại tài liệu (CCCD, thẻ SV, đề cương) và ngôn ngữ.",
+      action: () => navigate("/doc-stats"), // 👈 sang Dashboard thống kê tài liệu
+      accent: "from-cyan-500/10 to-sky-500/10 border-cyan-100",
+      pill: "Document Dashboard",
+    },
   ];
 
   return (
@@ -53,8 +70,8 @@ export default function Home() {
         </h1>
         <p className="text-sm sm:text-base text-slate-600 mt-1 max-w-2xl">
           Đây là trung tâm quản lý các dịch vụ OCR của bạn. Hãy chọn một chức
-          năng ở bên dưới để bắt đầu xử lý tài liệu: nhận diện, làm nét, tóm tắt
-          hoặc dịch.
+          năng bên dưới để bắt đầu xử lý tài liệu: nhận diện, làm nét, tóm tắt
+          hoặc dịch văn bản, và xem các dashboard thống kê.
         </p>
       </div>
 
