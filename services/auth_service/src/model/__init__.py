@@ -1,5 +1,4 @@
-from .database import Base, SessionLocal, engine
 from .user import User
-from .document import Document  # 👈 thêm dòng này
+from .document import Document
 
-__all__ = ["Base", "SessionLocal", "engine", "User", "Document"]
+__all__ = ["User", "Document"]

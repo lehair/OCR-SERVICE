@@ -9,7 +9,7 @@ export default function Summarizer() {
     if (!text) return alert("Chưa có văn bản để tóm tắt");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8003/summarizer/summarize", {
+      const res = await fetch("http://localhost:8010/summarizer/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),

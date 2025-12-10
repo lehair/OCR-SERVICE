@@ -5,6 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.controller.auth_controller import router as auth_router
 from src.model.database import Base, engine
 
+# ⭐ IMPORT CÁC MODEL ĐỂ SQLAlchemy biết tới bảng
+from src.model.user import User          # nếu chưa import
+from src.model.document import Document  # bảng documents mới
+
 # Tạo bảng trong MySQL (nếu chưa có)
 Base.metadata.create_all(bind=engine)
 

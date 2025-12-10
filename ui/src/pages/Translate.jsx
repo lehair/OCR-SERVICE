@@ -16,7 +16,7 @@ export default function Translate() {
     if (!original) return alert("Không có văn bản để dịch");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8006/translate/translate", {
+      const res = await fetch("http://localhost:8010/translate/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
