@@ -63,9 +63,23 @@ services:
     container_name: translate_service
     ports:
       - "8006:8006"
+  history_service:
+    build: ./services/history_service
+    image: history_service:latest
+    container_name: history_service
+    depends_on:
+      - mysql
+    ports:
+      - "8007:8007"
+    environment:
+      # Kết nối vào DB ocr_auth giống như Auth Service
+      - DATABASE_URL=mysql+mysqlconnector://ocr_user:123456@mysql:3306/ocr_auth
+    volumes:
+      - ./services/history_service:/app
 
   gateway:
-    build: ./gateway
+    # 👇 SỬA 1: Trả về đúng tên thư mục thật của bạn (lúc nãy mình nhìn nhầm là services/gateway)
+    build: ./gateway  
     image: gateway:latest
     container_name: gateway
     ports:
@@ -77,6 +91,13 @@ services:
       - PREPROCESS_URL=http://preprocess_service:8004
       - CLASSIFIER_URL=http://classifier_service:8005
       - TRANSLATE_URL=http://translate_service:8006
+      - HISTORY_URL=http://history_service:8007 
+
+    # 👇 SỬA 2: Đường dẫn volume phải khớp với đường dẫn build
+    # Bên trái dấu hai chấm: Đường dẫn máy thật (Windows)
+    # Bên phải dấu hai chấm: Đường dẫn trong Docker (Xem dòng WORKDIR trong Dockerfile)
+    volumes:
+      - ./gateway/src:/app/src
 
   frontend:
     build: ./ui

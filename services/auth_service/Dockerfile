@@ -5,6 +5,7 @@ WORKDIR /app
 # Cài các thư viện cần thiết
 RUN pip install --no-cache-dir \
     fastapi \
+    pyjwt\
     uvicorn \
     sqlalchemy \
     passlib \

@@ -5,6 +5,18 @@ export default function Summarizer() {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const getUserID = () => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (!stored) return 1;
+      const u = JSON.parse(stored);
+      return u.user_id || u.id || 1;
+    } catch {
+      return 1;
+    }
+  };
+  const USER_ID = getUserID();
+
   async function runSummarize() {
     if (!text) return alert("Chưa có văn bản để tóm tắt");
     setLoading(true);
@@ -12,7 +24,12 @@ export default function Summarizer() {
       const res = await fetch("http://localhost:8010/summarizer/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({
+          text,
+          user_id: USER_ID,
+          // filename của OCR gần nhất (nếu có) để log history đúng
+          filename: sessionStorage.getItem("ocrFilename") || "",
+        }),
       });
       const data = await res.json();
       setSummary(data.summary || JSON.stringify(data));

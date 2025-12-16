@@ -105,7 +105,7 @@ export default function Preprocess() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() =>
-                  callApi("http://localhost:8004/preprocess/enhance")
+                  callApi("http://localhost:8010/preprocess/enhance")
                 }
                 className="px-3 py-2.5 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={loading}
@@ -115,7 +115,7 @@ export default function Preprocess() {
 
               <button
                 onClick={() =>
-                  callApi("http://localhost:8004/preprocess/deskew")
+                  callApi("http://localhost:8010/preprocess/deskew")
                 }
                 className="px-3 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={loading}
@@ -125,7 +125,7 @@ export default function Preprocess() {
 
               <button
                 onClick={() =>
-                  callApi("http://localhost:8004/preprocess/threshold")
+                  callApi("http://localhost:8010/preprocess/threshold")
                 }
                 className="px-3 py-2.5 rounded-xl bg-slate-700 text-white text-sm font-semibold hover:bg-slate-800 transition disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={loading}

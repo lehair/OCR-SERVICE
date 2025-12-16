@@ -6,7 +6,7 @@ WORKDIR /app
 COPY src ./src
 # Set PYTHONPATH để Python tìm module src
 ENV PYTHONPATH=/app
-RUN pip install --no-cache-dir fastapi uvicorn requests python-multipart
+RUN pip install --no-cache-dir fastapi uvicorn requests python-multipart httpx
 
 EXPOSE 8010
 

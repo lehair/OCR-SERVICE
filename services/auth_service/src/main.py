@@ -7,7 +7,6 @@ from src.model.database import Base, engine
 
 # ⭐ IMPORT CÁC MODEL ĐỂ SQLAlchemy biết tới bảng
 from src.model.user import User          # nếu chưa import
-from src.model.document import Document  # bảng documents mới
 
 # Tạo bảng trong MySQL (nếu chưa có)
 Base.metadata.create_all(bind=engine)

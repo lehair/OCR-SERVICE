@@ -10,8 +10,9 @@ import Translate from "./pages/Translate";
 import Classifier from "./pages/Classifier";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import LoginStats from "./pages/LoginStats"; // 👈 Thống kê đăng nhập
-import DocStats from "./pages/DocStats"; // 👈 (MỚI) Thống kê loại tài liệu
+import LoginStats from "./pages/LoginStats"; 
+import DocStats from "./pages/DocStats"; 
+import History from "./pages/History"; // ✅ Đã có import
 
 function AppLayout() {
   const location = useLocation();
@@ -21,7 +22,6 @@ function AppLayout() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
-        {/* Nếu là trang login/register: không cần sidebar, canh giữa form */}
         {isAuthPage ? (
           <div className="flex items-center justify-center min-h-[70vh]">
             <main className="w-full max-w-md">
@@ -33,8 +33,8 @@ function AppLayout() {
             </main>
           </div>
         ) : (
-          // Layout chính: sidebar + content
           <div className="flex flex-col lg:flex-row gap-6">
+            {/* Sidebar chứa menu điều hướng */}
             <Sidebar />
             <main className="flex-1">
               <Routes>
@@ -45,13 +45,12 @@ function AppLayout() {
                 <Route path="/translate" element={<Translate />} />
                 <Route path="/classifier" element={<Classifier />} />
 
-                {/* Dashboard thống kê đăng nhập */}
                 <Route path="/login-stats" element={<LoginStats />} />
-
-                {/* Dashboard thống kê tài liệu (Căn cước / Thẻ SV / Đề cương / ngôn ngữ) */}
                 <Route path="/doc-stats" element={<DocStats />} />
 
-                {/* Nếu lạc route thì về trang chủ */}
+                {/* 👇 THÊM DÒNG NÀY ĐỂ VÀO TRANG LỊCH SỬ */}
+                <Route path="/history" element={<History />} />
+
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>

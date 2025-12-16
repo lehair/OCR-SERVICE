@@ -5,14 +5,31 @@ export default function Classifier() {
   const [label, setLabel] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const getUserID = () => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (!stored) return 1;
+      const u = JSON.parse(stored);
+      return u.user_id || u.id || 1;
+    } catch {
+      return 1;
+    }
+  };
+  const USER_ID = getUserID();
+
   async function classify() {
     if (!text) return alert("Không có văn bản để phân loại");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8005/classifier/by_text", {
+      const res = await fetch("http://localhost:8010/classifier/by_text", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({
+          text,
+          user_id: USER_ID,
+          // ưu tiên dùng filename OCR gần nhất để History log đúng
+          filename: sessionStorage.getItem("ocrFilename") || "",
+        }),
       });
 
       if (!res.ok) {
@@ -34,26 +51,7 @@ export default function Classifier() {
 
   return (
     <div className="bg-white rounded-2xl shadow p-6">
-      <h2 className="text-xl font-semibold text-indigo-600 mb-4">
-        🧩 Classifier
-      </h2>
-
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={6}
-        className="w-full p-3 border rounded"
-      />
-
-      <div className="mt-3">
-        <button
-          onClick={classify}
-          className="px-3 py-2 bg-yellow-600 text-white rounded"
-          disabled={loading}
-        >
-          {loading ? "Đang phân loại..." : "Phân loại"}
-        </button>
-      </div>
+      <h2 className="text-xl font-semibold text-indigo-600 mb-4">🧩 Classifier</h2>
 
       {/* Content */}
       <div className="grid lg:grid-cols-2 gap-6">

@@ -1,113 +1,64 @@
-from fastapi import APIRouter, HTTPException
-import requests
+from fastapi import APIRouter, HTTPException, Request
+import httpx
 import os
 
 router = APIRouter()
 
-# URL của auth_service, lấy từ biến môi trường trong docker-compose
-# docker-compose.yml: AUTH_URL=http://auth_service:8001
+# Lấy URL từ docker-compose
 AUTH_URL = os.getenv("AUTH_URL", "http://auth_service:8001")
 
-
+# --- 1. ĐĂNG KÝ (Dùng httpx async) ---
 @router.post("/register")
-def register(user: dict):
+async def proxy_register(request: Request):
     """
-    Proxy đăng ký:
-    Frontend:  POST http://localhost:8010/auth/register
     Gateway -> POST {AUTH_URL}/auth/register
     """
-    try:
-        res = requests.post(f"{AUTH_URL}/auth/register", json=user, timeout=5)
-        if not res.ok:
-            # cố gắng đọc JSON, nếu không được thì trả text
-            try:
-                detail = res.json()
-            except ValueError:
-                detail = res.text
-            raise HTTPException(status_code=res.status_code, detail=detail)
-        return res.json()
-    except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"Lỗi khi gọi auth_service: {e}")
+    async with httpx.AsyncClient() as client:
+        try:
+            # Lấy toàn bộ body JSON từ Frontend gửi lên
+            body = await request.json()
+            
+            # Gọi sang Auth Service
+            res = await client.post(f"{AUTH_URL}/auth/register", json=body, timeout=10.0)
+            
+            # Nếu Auth Service báo lỗi (VD: trùng user), trả về lỗi y hệt
+            if res.status_code != 200:
+                # Cố gắng đọc JSON lỗi, nếu không thì lấy text
+                try:
+                    detail = res.json()
+                except:
+                    detail = res.text
+                raise HTTPException(status_code=res.status_code, detail=detail)
+                
+            return res.json()
+            
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=502, detail=f"Lỗi kết nối Auth Service: {str(e)}")
 
-
+# --- 2. ĐĂNG NHẬP (Dùng httpx async) ---
 @router.post("/login")
-def login(user: dict):
+async def proxy_login(request: Request):
     """
-    Proxy đăng nhập:
-    Frontend:  POST http://localhost:8010/auth/login
     Gateway -> POST {AUTH_URL}/auth/login
     """
-    try:
-        res = requests.post(f"{AUTH_URL}/auth/login", json=user, timeout=5)
-        if not res.ok:
-            try:
-                detail = res.json()
-            except ValueError:
-                detail = res.text
-            raise HTTPException(status_code=res.status_code, detail=detail)
-        return res.json()
-    except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"Lỗi khi gọi auth_service: {e}")
+    async with httpx.AsyncClient() as client:
+        try:
+            body = await request.json()
+            
+            res = await client.post(f"{AUTH_URL}/auth/login", json=body, timeout=10.0)
+            
+            if res.status_code != 200:
+                try:
+                    detail = res.json()
+                except:
+                    detail = res.text
+                raise HTTPException(status_code=res.status_code, detail=detail)
+                
+            return res.json()
+            
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=502, detail=f"Lỗi kết nối Auth Service: {str(e)}")
 
-
-@router.get("/stats/login")
-def login_stats():
-    """
-    Thống kê đăng nhập cho Dashboard.
-    Frontend:  GET http://localhost:8010/auth/stats/login
-    Gateway -> GET {AUTH_URL}/auth/stats/login
-    """
-    try:
-        res = requests.get(f"{AUTH_URL}/auth/stats/login", timeout=5)
-        if not res.ok:
-            try:
-                detail = res.json()
-            except ValueError:
-                detail = res.text
-            raise HTTPException(status_code=res.status_code, detail=detail)
-        return res.json()
-    except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"Lỗi khi gọi auth_service: {e}")
-
-
-@router.get("/stats/docs")
-def docs_stats():
-    """
-    Thống kê tài liệu (doc_type, language) cho Dashboard.
-    Frontend:  GET http://localhost:8010/auth/stats/docs
-    Gateway -> GET {AUTH_URL}/auth/stats/docs
-    """
-    try:
-        res = requests.get(f"{AUTH_URL}/auth/stats/docs", timeout=5)
-        if not res.ok:
-            try:
-                detail = res.json()
-            except ValueError:
-                detail = res.text
-            raise HTTPException(status_code=res.status_code, detail=detail)
-        return res.json()
-    except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"Lỗi khi gọi auth_service: {e}")
-
-
-@router.post("/docs/log")
-def docs_log(doc: dict):
-    """
-    API để các service khác log tài liệu đã xử lý.
-    Ví dụ (gateway):
-      POST http://localhost:8010/auth/docs/log
-      body: { "doc_type": "cccd", "language": "vi" }
-
-    Gateway -> POST {AUTH_URL}/auth/docs/log
-    """
-    try:
-        res = requests.post(f"{AUTH_URL}/auth/docs/log", json=doc, timeout=5)
-        if not res.ok:
-            try:
-                detail = res.json()
-            except ValueError:
-                detail = res.text
-            raise HTTPException(status_code=res.status_code, detail=detail)
-        return res.json()
-    except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"Lỗi khi gọi auth_service: {e}")
+# --- LƯU Ý ---
+# Các API /stats/docs và /docs/log đã được chuyển sang history_router.py
+# nên ta XÓA bỏ ở đây để tránh nhầm lẫn.

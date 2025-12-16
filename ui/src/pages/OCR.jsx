@@ -5,6 +5,19 @@ export default function OCR() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Lấy user_id từ localStorage (nếu chưa login thì dùng 1 để test)
+  const getUserID = () => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (!stored) return 1;
+      const u = JSON.parse(stored);
+      return u.user_id || u.id || 1;
+    } catch {
+      return 1;
+    }
+  };
+  const USER_ID = getUserID();
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!file) return alert("Chọn ảnh trước!");
@@ -12,9 +25,10 @@ export default function OCR() {
     setLoading(true);
     const fd = new FormData();
     fd.append("file", file);
+    fd.append("user_id", USER_ID);
 
     try {
-      const res = await fetch("http://localhost:8002/ocr/read", {
+      const res = await fetch("http://localhost:8010/ocr/read", {
         method: "POST",
         body: fd,
       });
@@ -24,6 +38,8 @@ export default function OCR() {
       setText(t);
       // lưu để dùng cho translate / classifier
       sessionStorage.setItem("ocrText", data.text || "");
+      // lưu tên file để các trang khác dùng lại (history/log)
+      sessionStorage.setItem("ocrFilename", data.filename || file.name || "");
     } catch (err) {
       alert("Lỗi khi gọi API OCR");
       console.error(err);

@@ -2,6 +2,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+// Nếu bạn muốn hiển thị Widget thống kê ngay trên Home (như gợi ý trước), 
+// hãy import LoginStats vào đây. Nếu không thì giữ nguyên code dưới.
+
 export default function Home() {
   const navigate = useNavigate();
 
@@ -38,6 +41,15 @@ export default function Home() {
       accent: "from-emerald-500/10 to-teal-500/10 border-emerald-100",
       pill: "Machine Translation",
     },
+    // 👇 MỤC MỚI: HISTORY
+    {
+      key: "history",
+      title: "📜 History",
+      desc: "Xem lại danh sách các file đã xử lý và kết quả chi tiết.",
+      action: () => navigate("/history"),
+      accent: "from-rose-500/10 to-pink-500/10 border-rose-100",
+      pill: "Activity Log",
+    },
     {
       key: "login-stats",
       title: "📊 Login Stats",
@@ -49,8 +61,8 @@ export default function Home() {
     {
       key: "doc-stats",
       title: "📑 Doc Stats",
-      desc: "Thống kê loại tài liệu (CCCD, thẻ SV, đề cương) và ngôn ngữ.",
-      action: () => navigate("/doc-stats"), // 👈 sang Dashboard thống kê tài liệu
+      desc: "Thống kê loại tài liệu (CCCD, thẻ SV...) và ngôn ngữ.",
+      action: () => navigate("/doc-stats"),
       accent: "from-cyan-500/10 to-sky-500/10 border-cyan-100",
       pill: "Document Dashboard",
     },
@@ -69,47 +81,39 @@ export default function Home() {
           OCR Image Reader Dashboard
         </h1>
         <p className="text-sm sm:text-base text-slate-600 mt-1 max-w-2xl">
-          Đây là trung tâm quản lý các dịch vụ OCR của bạn. Hãy chọn một chức
-          năng bên dưới để bắt đầu xử lý tài liệu: nhận diện, làm nét, tóm tắt
-          hoặc dịch văn bản, và xem các dashboard thống kê.
+          Chào mừng! Đây là trung tâm quản lý các dịch vụ OCR. Hãy chọn một chức
+          năng bên dưới để bắt đầu xử lý tài liệu.
         </p>
       </div>
 
       {/* Grid cards */}
-      <div className="grid gap-4 sm:gap-5 grid-cols-1 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {features.map((f) => (
           <div
             key={f.key}
             className={[
-              "relative group p-4 sm:p-5 rounded-2xl border bg-gradient-to-br",
+              "relative group p-4 sm:p-5 rounded-2xl border bg-gradient-to-br flex flex-col justify-between",
               f.accent,
-              "hover:border-indigo-200 hover:shadow-md transition-all duration-150",
+              "hover:border-indigo-200 hover:shadow-md transition-all duration-150 cursor-pointer",
             ].join(" ")}
+            onClick={f.action} // Cho phép click cả card
           >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-                  <span className="text-lg">{f.title.split(" ")[0]}</span>
-                  <span>{f.title.replace(/^\S+\s*/, "")}</span>
+            <div>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                 {/* Tách icon và title thủ công để an toàn hơn */}
+                <h3 className="font-semibold text-slate-900 text-lg">
+                  {f.title}
                 </h3>
-                <p className="text-sm text-slate-600 mt-1">{f.desc}</p>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/60 text-slate-500 border border-white/80 whitespace-nowrap">
+                  {f.pill}
+                </span>
               </div>
-              <span className="text-[11px] px-2 py-1 rounded-full bg-white/70 text-slate-500 border border-white/80">
-                {f.pill}
-              </span>
+              <p className="text-sm text-slate-600 leading-relaxed">{f.desc}</p>
             </div>
 
-            <div className="mt-4 flex items-center justify-between">
-              <button
-                onClick={f.action}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-500 text-white text-sm font-semibold shadow-sm hover:bg-indigo-600 transition"
-              >
-                <span>Mở {f.title.replace(/^\S+\s*/, "")}</span>
-                <span className="text-xs">↗</span>
-              </button>
-
-              <span className="text-[11px] text-slate-400 hidden sm:inline group-hover:text-slate-500 transition">
-                Nhấn để chuyển tới màn hình chi tiết
+            <div className="mt-4 flex items-center justify-end">
+              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/80 text-indigo-600 shadow-sm group-hover:scale-110 transition-transform">
+                ↗
               </span>
             </div>
           </div>

@@ -5,28 +5,46 @@ export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [fullname, setFullname] = useState("");
+  
   const [msg, setMsg] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false); // Để hiện màu xanh nếu thành công
+  const [loading, setLoading] = useState(false); // Chặn bấm nút nhiều lần
+
   const nav = useNavigate();
 
   async function submit(e) {
     e.preventDefault();
+    setMsg("");
+    setLoading(true);
+
     try {
-      const res = await fetch("http://localhost:8001/auth/register", {
+      const res = await fetch("http://localhost:8010/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, full_name: fullname }),
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: "Lỗi" }));
-        setMsg(err.detail || "Đăng ký thất bại");
-        return;
-      }
+
       const data = await res.json();
-      alert("Đăng ký thành công: " + data.username);
-      nav("/login");
+
+      if (!res.ok) {
+        setIsSuccess(false);
+        setMsg(data.detail || "Đăng ký thất bại");
+      } else {
+        // Đăng ký thành công
+        setIsSuccess(true);
+        setMsg("Đăng ký thành công! Đang chuyển hướng...");
+        
+        // Đợi 1.5 giây cho user đọc thông báo rồi mới chuyển trang
+        setTimeout(() => {
+          nav("/login");
+        }, 1500);
+      }
     } catch (err) {
-      setMsg("Lỗi kết nối");
+      setIsSuccess(false);
+      setMsg("Lỗi kết nối đến Gateway");
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -41,8 +59,7 @@ export default function Register() {
           Tạo tài khoản mới
         </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Đăng ký để bắt đầu sử dụng OCR Dashboard và các dịch vụ xử lý tài
-          liệu.
+          Đăng ký để bắt đầu sử dụng OCR Dashboard và các dịch vụ xử lý tài liệu.
         </p>
       </div>
 
@@ -56,8 +73,10 @@ export default function Register() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Nhập tên đăng nhập..."
+            required
+            disabled={loading}
             className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400
-                       focus:outline-none focus:ring-2 focus:ring-emerald-500/70 focus:border-emerald-400"
+                        focus:outline-none focus:ring-2 focus:ring-emerald-500/70 focus:border-emerald-400 disabled:bg-slate-50"
           />
         </div>
 
@@ -70,8 +89,10 @@ export default function Register() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Nhập mật khẩu..."
             type="password"
+            required
+            disabled={loading}
             className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400
-                       focus:outline-none focus:ring-2 focus:ring-emerald-500/70 focus:border-emerald-400"
+                        focus:outline-none focus:ring-2 focus:ring-emerald-500/70 focus:border-emerald-400 disabled:bg-slate-50"
           />
         </div>
 
@@ -82,25 +103,31 @@ export default function Register() {
           <input
             value={fullname}
             onChange={(e) => setFullname(e.target.value)}
-            placeholder="Nhập họ tên đầy đủ (nếu có)..."
+            placeholder="Nhập họ tên đầy đủ..."
+            disabled={loading}
             className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400
-                       focus:outline-none focus:ring-2 focus:ring-emerald-500/70 focus:border-emerald-400"
+                        focus:outline-none focus:ring-2 focus:ring-emerald-500/70 focus:border-emerald-400 disabled:bg-slate-50"
           />
         </div>
 
+        {/* Thông báo lỗi / thành công */}
         {msg && (
-          <div className="text-sm text-red-500 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
-            {msg}
+          <div className={`text-sm rounded-xl px-3 py-2 border ${
+            isSuccess 
+              ? "bg-emerald-50 border-emerald-100 text-emerald-600" 
+              : "bg-red-50 border-red-100 text-red-500"
+          }`}>
+            {isSuccess ? "✅ " : "⚠️ "} {msg}
           </div>
         )}
 
         <div className="pt-1">
           <button
             type="submit"
-            className="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow-sm
-                       hover:bg-emerald-700 transition"
+            disabled={loading}
+            className="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow-sm hover:bg-emerald-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Tạo tài khoản
+            {loading ? "Đang xử lý..." : "Tạo tài khoản"}
           </button>
         </div>
 

@@ -12,17 +12,32 @@ export default function Translate() {
     if (o) setOriginal(o);
   }, []);
 
+  const getUserID = () => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (!stored) return 1;
+      const u = JSON.parse(stored);
+      return u.user_id || u.id || 1;
+    } catch {
+      return 1;
+    }
+  };
+  const USER_ID = getUserID();
+
   async function doTranslate() {
     if (!original) return alert("Không có văn bản để dịch");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8010/translate/translate", {
+      // Gateway expose /translate/text (và có alias /translate/translate)
+      const res = await fetch("http://localhost:8010/translate/text", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text: original,
           target_lang: targetLang,
           source_lang: sourceLang,
+          user_id: USER_ID,
+          filename: sessionStorage.getItem("ocrFilename") || "",
         }),
       });
       const data = await res.json();
