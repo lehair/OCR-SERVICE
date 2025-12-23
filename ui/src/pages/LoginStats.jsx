@@ -45,9 +45,12 @@ export default function LoginStats() {
     async function fetchAll() {
       try {
         // Gọi song song 2 API qua Gateway (Port 8010)
+        const token = localStorage.getItem("access_token");
+        const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
         const [loginRes, docsRes] = await Promise.all([
-          fetch("http://localhost:8010/auth/stats/login"),
-          fetch(`http://localhost:8010/history/stats/${USER_ID}`),
+          fetch("http://localhost:8010/auth/stats/login", { headers: authHeaders }),
+          fetch(`http://localhost:8010/history/stats/${USER_ID}`, { headers: authHeaders }),
         ]);
 
         // Nếu Auth chết thì loginRes sẽ lỗi, ta có thể handle riêng nếu muốn

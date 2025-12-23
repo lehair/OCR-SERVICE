@@ -14,6 +14,25 @@ import LoginStats from "./pages/LoginStats";
 import DocStats from "./pages/DocStats"; 
 import History from "./pages/History"; // ✅ Đã có import
 
+// --- Helper: đọc user từ localStorage ---
+function getStoredUser() {
+  try {
+    const raw = localStorage.getItem("user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function AdminRoute({ children }) {
+  const user = getStoredUser();
+  if (!user?.is_admin) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+}
+
+
 function AppLayout() {
   const location = useLocation();
   const isAuthPage =
@@ -45,8 +64,8 @@ function AppLayout() {
                 <Route path="/translate" element={<Translate />} />
                 <Route path="/classifier" element={<Classifier />} />
 
-                <Route path="/login-stats" element={<LoginStats />} />
-                <Route path="/doc-stats" element={<DocStats />} />
+                <Route path="/login-stats" element={<AdminRoute><LoginStats /></AdminRoute>} />
+                <Route path="/doc-stats" element={<AdminRoute><DocStats /></AdminRoute>} />
 
                 {/* 👇 THÊM DÒNG NÀY ĐỂ VÀO TRANG LỊCH SỬ */}
                 <Route path="/history" element={<History />} />

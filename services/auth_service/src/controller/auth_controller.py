@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from sqlalchemy import func
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 import jwt  # Cần cài: pip install pyjwt
@@ -53,6 +53,7 @@ class LoginResponse(BaseModel):
     user_id: int
     username: str
     full_name: str | None = None
+    is_admin: bool = False
     access_token: str
     token_type: str = "bearer"
 
@@ -64,6 +65,19 @@ class LoginStatsResponse(BaseModel):
 
 
 
+# --- AUTHZ: yêu cầu Bearer token và quyền admin ---
+def require_admin(authorization: str | None = Header(default=None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing Bearer token")
+    token = authorization.split(" ", 1)[1].strip()
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    if not payload.get("is_admin"):
+        raise HTTPException(status_code=403, detail="Admin only")
+    return payload
+
 # ================== AUTH API ==================
 @router.post("/register") # Bỏ response_model để trả về tự do hoặc định nghĩa lại
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
@@ -71,10 +85,15 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Tên đăng nhập đã tồn tại")
 
+    # Nếu chưa có admin nào, user đầu tiên sẽ là admin
+    has_admin = db.query(User).filter(getattr(User, "is_admin", False) == True).count() > 0
+    is_first_admin = (db.query(User).count() == 0) or (not has_admin)
+
     user = User(
         username=payload.username,
         full_name=payload.full_name or payload.username,
         hashed_password=hash_password(payload.password),
+        is_admin=is_first_admin,
     )
     db.add(user)
     db.commit()
@@ -96,20 +115,21 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     db.refresh(user)
 
     # ✅ TẠO TOKEN
-    access_token = create_access_token(data={"sub": user.username, "id": user.user_id})
+    access_token = create_access_token(data={"sub": user.username, "id": user.user_id, "is_admin": bool(getattr(user, "is_admin", False))})
 
     # ✅ TRẢ VỀ ĐẦY ĐỦ THÔNG TIN
     return LoginResponse(
         user_id=user.user_id, # Frontend cần cái này để lưu History
         username=user.username,
         full_name=user.full_name,
+        is_admin=bool(getattr(user, "is_admin", False)),
         access_token=access_token,
         token_type="bearer"
     )
 
 # ================== LOGIN STATS (Giữ lại cái này) ==================
 @router.get("/stats/login", response_model=LoginStatsResponse)
-def get_login_stats(db: Session = Depends(get_db)):
+def get_login_stats(db: Session = Depends(get_db), _: dict = Depends(require_admin)):
     total_users = db.query(User).count()
     logged_in_users = db.query(User).filter(User.login_count > 0).count()
     total_logins = db.query(func.sum(User.login_count)).scalar() or 0

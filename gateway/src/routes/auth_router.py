@@ -62,3 +62,28 @@ async def proxy_login(request: Request):
 # --- LƯU Ý ---
 # Các API /stats/docs và /docs/log đã được chuyển sang history_router.py
 # nên ta XÓA bỏ ở đây để tránh nhầm lẫn.
+
+# --- 3. LOGIN STATS (ADMIN) ---
+@router.get("/stats/login")
+async def proxy_login_stats(request: Request):
+    """Gateway -> GET {AUTH_URL}/auth/stats/login (yêu cầu Bearer token admin)"""
+    headers = {}
+    auth = request.headers.get("authorization")
+    if auth:
+        headers["Authorization"] = auth
+
+    async with httpx.AsyncClient() as client:
+        try:
+            res = await client.get(f"{AUTH_URL}/auth/stats/login", headers=headers, timeout=10.0)
+
+            if res.status_code != 200:
+                try:
+                    detail = res.json()
+                except:
+                    detail = res.text
+                raise HTTPException(status_code=res.status_code, detail=detail)
+
+            return res.json()
+
+        except httpx.RequestError as e:
+            raise HTTPException(status_code=502, detail=f"Lỗi kết nối Auth Service: {str(e)}")

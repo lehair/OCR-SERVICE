@@ -15,7 +15,8 @@ RUN pip install --no-cache-dir \
     sqlalchemy \
     mysql-connector-python \
     requests \
-    python-multipart
+    python-multipart \
+    pyjwt
 
 # Mở cổng 8007 (Cổng của History Service)
 EXPOSE 8007

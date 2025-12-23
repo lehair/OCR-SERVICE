@@ -4,6 +4,8 @@ export default function Preprocess() {
   const [file, setFile] = useState(null);
   const [origPreview, setOrigPreview] = useState(null);
   const [imgSrc, setImgSrc] = useState(null);
+  const [ocrText, setOcrText] = useState("");
+  const [docType, setDocType] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function callApi(path) {
@@ -11,6 +13,11 @@ export default function Preprocess() {
     setLoading(true);
     const fd = new FormData();
     fd.append("file", file);
+    // gửi user_id để lưu history + thống kê
+    try {
+      const u = JSON.parse(localStorage.getItem("user") || "null");
+      if (u?.user_id) fd.append("user_id", u.user_id);
+    } catch {}
     try {
       const res = await fetch(path, { method: "POST", body: fd });
       const data = await res.json();
@@ -105,7 +112,7 @@ export default function Preprocess() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() =>
-                  callApi("http://localhost:8010/preprocess/enhance")
+                  callApi("http://localhost:8010/preprocess/enhance_ocr")
                 }
                 className="px-3 py-2.5 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={loading}
@@ -115,7 +122,7 @@ export default function Preprocess() {
 
               <button
                 onClick={() =>
-                  callApi("http://localhost:8010/preprocess/deskew")
+                  callApi("http://localhost:8010/preprocess/deskew_ocr")
                 }
                 className="px-3 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={loading}
@@ -125,7 +132,7 @@ export default function Preprocess() {
 
               <button
                 onClick={() =>
-                  callApi("http://localhost:8010/preprocess/threshold")
+                  callApi("http://localhost:8010/preprocess/threshold_ocr")
                 }
                 className="px-3 py-2.5 rounded-xl bg-slate-700 text-white text-sm font-semibold hover:bg-slate-800 transition disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={loading}
@@ -200,7 +207,24 @@ export default function Preprocess() {
               input cho bước OCR tiếp theo.
             </p>
           )}
-        </div>
+        
+          {/* OCR result */}
+          {ocrText && (
+            <div className="mt-5 bg-white/90 rounded-2xl border border-slate-100 shadow p-4">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-bold text-slate-900">Kết quả OCR</h3>
+                {docType && (
+                  <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    {docType}
+                  </span>
+                )}
+              </div>
+              <pre className="mt-3 whitespace-pre-wrap text-sm text-slate-700 leading-relaxed">
+{ocrText}
+              </pre>
+            </div>
+          )}
+</div>
       </div>
     </div>
   );

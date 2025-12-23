@@ -57,6 +57,7 @@ export default function Home() {
       action: () => navigate("/login-stats"),
       accent: "from-indigo-500/10 to-purple-500/10 border-indigo-100",
       pill: "Auth Dashboard",
+          adminOnly: true,
     },
     {
       key: "doc-stats",
@@ -65,8 +66,21 @@ export default function Home() {
       action: () => navigate("/doc-stats"),
       accent: "from-cyan-500/10 to-sky-500/10 border-cyan-100",
       pill: "Document Dashboard",
+          adminOnly: true,
     },
   ];
+
+const stored = localStorage.getItem("user");
+let isAdmin = false;
+if (stored) {
+  try {
+    isAdmin = !!JSON.parse(stored)?.is_admin;
+  } catch {
+    isAdmin = false;
+  }
+}
+
+const visibleFeatures = features.filter((f) => !f.adminOnly || isAdmin);
 
   return (
     <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-slate-100 p-6 sm:p-8">
@@ -88,7 +102,7 @@ export default function Home() {
 
       {/* Grid cards */}
       <div className="grid gap-4 sm:gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {features.map((f) => (
+        {visibleFeatures.map((f) => (
           <div
             key={f.key}
             className={[

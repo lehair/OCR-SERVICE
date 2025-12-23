@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 import httpx
 import os
 
@@ -8,7 +8,7 @@ router = APIRouter()
 # Cổng 8007 là cổng của history_service mà ta đã cấu hình
 HISTORY_URL = os.getenv("HISTORY_URL", "http://history_service:8007")
 
-async def forward_request(method: str, path: str, params=None, json_data=None):
+async def forward_request(method: str, path: str, params=None, json_data=None, headers=None):
     """
     Hàm chung để gọi sang History Service
     """
@@ -18,9 +18,9 @@ async def forward_request(method: str, path: str, params=None, json_data=None):
             target_url = f"{HISTORY_URL}/api/history{path}"
             
             if method == "GET":
-                resp = await client.get(target_url, params=params, timeout=10.0)
+                resp = await client.get(target_url, params=params, headers=headers, timeout=10.0)
             elif method == "POST":
-                resp = await client.post(target_url, json=json_data, timeout=10.0)
+                resp = await client.post(target_url, json=json_data, headers=headers, timeout=10.0)
             
             if resp.status_code != 200:
                 # Nếu service con báo lỗi, trả lỗi đó về cho Frontend
@@ -40,8 +40,12 @@ async def forward_request(method: str, path: str, params=None, json_data=None):
 # 1. API Lấy thống kê (Dashboard dùng cái này)
 # Frontend gọi: GET /history/stats/{user_id}
 @router.get("/stats/{user_id}")
-async def get_stats(user_id: int):
-    return await forward_request("GET", f"/stats/{user_id}")
+async def get_stats(user_id: int, request: Request):
+    headers = {}
+    auth = request.headers.get("authorization")
+    if auth:
+        headers["Authorization"] = auth
+    return await forward_request("GET", f"/stats/{user_id}", headers=headers)
 
 # 2. API Lấy danh sách lịch sử (Trang History dùng cái này)
 # Frontend gọi: GET /history/list/{user_id}?doc_type=...

@@ -29,7 +29,10 @@ export default function DocStats() {
       try {
         setLoading(true);
         // 👇 GỌI QUA GATEWAY (PORT 8010) -> HISTORY SERVICE
-        const res = await fetch(`http://localhost:8010/history/stats/${USER_ID}`);
+        const token = localStorage.getItem("access_token");
+        const res = await fetch(`http://localhost:8010/history/stats/${USER_ID}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         
         if (!res.ok) {
           // Xử lý nếu user chưa có lịch sử nào (API có thể trả 404 hoặc rỗng)

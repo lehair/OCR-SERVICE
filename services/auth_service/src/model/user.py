@@ -10,6 +10,7 @@ class User(Base):
     full_name = Column(String(100))
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # 👇 BẮT BUỘC PHẢI CÓ 2 DÒNG NÀY (Nếu thiếu là lỗi ngay)

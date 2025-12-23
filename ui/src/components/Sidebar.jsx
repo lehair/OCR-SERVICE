@@ -106,14 +106,18 @@ export default function Sidebar() {
           <Icon>📜</Icon> <span className="text-sm">Lịch sử hoạt động</span>
         </NavLink>
 
-        <NavLink to="/doc-stats" className={linkClass}>
-          <Icon>📈</Icon> <span className="text-sm">Thống kê Tài liệu</span>
-        </NavLink>
+{user?.is_admin && (
+  <>
+    <NavLink to="/doc-stats" className={linkClass}>
+      <Icon>📈</Icon> <span className="text-sm">Thống kê Tài liệu</span>
+    </NavLink>
 
-        <NavLink to="/login-stats" className={linkClass}>
-          <Icon>📊</Icon> <span className="text-sm">Thống kê Hệ thống</span>
-        </NavLink>
-
+    <NavLink to="/login-stats" className={linkClass}>
+      <Icon>📊</Icon>{" "}
+      <span className="text-sm">Thống kê Hệ thống</span>
+    </NavLink>
+  </>
+)}
       </nav>
 
       {/* --- FOOTER (User Info) --- */}

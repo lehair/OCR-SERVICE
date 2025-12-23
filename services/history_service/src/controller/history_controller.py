@@ -1,13 +1,33 @@
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, Header
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional, List
+import os
+import jwt
 
 from src.database import get_db
 from src.model import HistoryRecord
 
 router = APIRouter()
+
+# JWT secret phải khớp Auth Service
+JWT_SECRET = os.getenv('JWT_SECRET', 'OCRSUITE_SECRET_KEY_123456')
+JWT_ALGO = os.getenv('JWT_ALGO', 'HS256')
+
+
+def require_admin(authorization: str | None = Header(default=None)):
+    if not authorization or not authorization.startswith('Bearer '):
+        raise HTTPException(status_code=401, detail='Missing Bearer token')
+    token = authorization.split(' ', 1)[1].strip()
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGO])
+    except Exception:
+        raise HTTPException(status_code=401, detail='Invalid token')
+    if not payload.get('is_admin'):
+        raise HTTPException(status_code=403, detail='Admin only')
+    return payload
+
 
 # --- Models DTO (Dữ liệu đầu vào/ra) ---
 class HistoryCreate(BaseModel):
@@ -66,7 +86,7 @@ def get_history_list(
 # ================== 3. API DASHBOARD (STATS) ==================
 # Trả về số liệu để vẽ biểu đồ
 @router.get("/stats/{user_id}")
-def get_dashboard_stats(user_id: int, db: Session = Depends(get_db)):
+def get_dashboard_stats(user_id: int, db: Session = Depends(get_db), _: dict = Depends(require_admin)):
     # A. Tổng số file
     total_files = db.query(HistoryRecord).filter(HistoryRecord.user_id == user_id).count()
     
